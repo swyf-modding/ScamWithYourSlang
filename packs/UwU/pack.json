@@ -1,0 +1,57 @@
+{
+  "code": "uw",
+  "nativeName": "UwU",
+  "englishName": "UwUSpeak",
+  "author": "KrakenDev",
+  "version": "0.1.0",
+  "rtl": false,
+
+  "_speech": "UwU has no Pocket TTS model in StreamingAssets and is not one of the ten languages Qwen3 handles, so the caller speaks through MOSS. Set hasPocket only if a pocket-tts-onnx-v2/uwu folder is actually installed.",
+  "speech": {
+    "hasPocket": false,
+    "pocketFolder": ""
+  },
+
+  "_sentinel": "How the caller reads characters aloud when it spells out an email address or reads back a security answer.",
+  "sentinel": {
+    "digits": [
+      "zewo", "wun", "twoo", "fwee", "fow",
+      "five", "six", "seven", "eight", "nine"
+    ],
+    "letters": [
+      "ay", "bee", "see", "dee", "ee", "ef", "gee", "aitch", "eye", "jay",
+      "kay", "eww", "em", "en", "oh", "pee", "cue", "aww", "ess", "tee",
+      "u", "vee", "doubwe-u", "ex", "wy", "zee"
+    ],
+    "symbols": {
+      "@": "at",
+      ".": "dot",
+      "-": "dash",
+      "_": "undewscowe",
+      "+": "plus",
+      "/": "swash"
+    },
+    "questions": {
+      "mothers_maiden_name": "mommy's maiden name",
+      "first_pet_name": "name of ur fuwst pet",
+      "favorite_color": "favowite cowow"
+    },
+    "colors": {
+      "RED": "wed",
+      "BLUE": "bwue",
+      "GREEN": "gween",
+      "PURPLE": "puwpwe",
+      "YELLOW": "yewwow",
+      "ORANGE": "owange",
+      "PINK": "pink",
+      "BLACK": "bwack",
+      "WHITE": "white",
+      "RAINBOW": "wainbow",
+      "TEAL": "teaw",
+      "GOLD": "gowd",
+      "SILVER": "siwvew",
+      "BROWN": "bwown",
+      "INDIGO": "indigo"
+    }
+  }
+}

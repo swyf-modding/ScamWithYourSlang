@@ -1,0 +1,10 @@
+# Build output. Releases are built by hand against a local game install.
+bin/
+obj/
+
+# The game's assemblies are never committed, and neither is anything decompiled from them.
+*.dll
+*.pdb
+
+__pycache__/
+*.pyc

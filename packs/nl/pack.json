@@ -1,0 +1,57 @@
+{
+  "code": "nl",
+  "nativeName": "Nederlands",
+  "englishName": "Dutch",
+  "author": "",
+  "version": "0.1.0",
+  "rtl": false,
+
+  "_speech": "Dutch has no Pocket TTS model in StreamingAssets and is not one of the ten languages Qwen3 handles, so the caller speaks through MOSS. Set hasPocket only if a pocket-tts-onnx-v2/dutch folder is actually installed.",
+  "speech": {
+    "hasPocket": false,
+    "pocketFolder": ""
+  },
+
+  "_sentinel": "How the caller reads characters aloud when it spells out an email address or reads back a security answer.",
+  "sentinel": {
+    "digits": [
+      "nul", "een", "twee", "drie", "vier",
+      "vijf", "zes", "zeven", "acht", "negen"
+    ],
+    "letters": [
+      "aa", "bee", "see", "dee", "ee", "ef", "gee", "haa", "ie", "jee",
+      "kaa", "el", "em", "en", "oo", "pee", "kuu", "er", "es", "tee",
+      "uu", "vee", "wee", "iks", "Griekse ij", "zet"
+    ],
+    "symbols": {
+      "@": "apenstaartje",
+      ".": "punt",
+      "-": "streepje",
+      "_": "liggend streepje",
+      "+": "plus",
+      "/": "schuine streep"
+    },
+    "questions": {
+      "mothers_maiden_name": "meisjesnaam van je moeder",
+      "first_pet_name": "naam van je eerste huisdier",
+      "favorite_color": "lievelingskleur"
+    },
+    "colors": {
+      "RED": "rood",
+      "BLUE": "blauw",
+      "GREEN": "groen",
+      "PURPLE": "paars",
+      "YELLOW": "geel",
+      "ORANGE": "oranje",
+      "PINK": "roze",
+      "BLACK": "zwart",
+      "WHITE": "wit",
+      "RAINBOW": "regenboog",
+      "TEAL": "turquoise",
+      "GOLD": "goud",
+      "SILVER": "zilver",
+      "BROWN": "bruin",
+      "INDIGO": "indigo"
+    }
+  }
+}
