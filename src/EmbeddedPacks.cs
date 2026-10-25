@@ -63,7 +63,7 @@ namespace ScamWYF.Translate
                 contents[name.Substring(cut + 1)] = file.Value;
             }
 
-            int written = 0, updated = 0, kept = 0;
+            int written = 0, updated = 0, continued = 0;
             foreach (var pack in packs.OrderBy(p => p.Key, StringComparer.Ordinal))
             {
                 try
@@ -76,7 +76,15 @@ namespace ScamWYF.Translate
                     {
                         if (!File.Exists(marker))
                         {
-                            kept++;
+                            // Not ours, so it is not touched. Say so only when it matters: a copy
+                            // that is older than the one this build carries, which is the case
+                            // where somebody would otherwise wait for an update that never lands.
+                            string onDisk = ReadPackVersion(Path.Combine(directory, "pack.json"));
+                            if (Compare(onDisk, version) < 0)
+                                log.LogInfo(pack.Key + ": the copy in " + directory + " says version " + onDisk +
+                                            " and the one bundled here says " + version + ". It was left alone because " +
+                                            "it has no " + MarkerName + " marker; delete that folder to take the bundled copy.");
+                            continued++;
                             continue;
                         }
                         if (Compare(ReadMarker(marker), version) >= 0) continue;
@@ -98,9 +106,9 @@ namespace ScamWYF.Translate
 
             if (written > 0 || updated > 0)
                 log.LogInfo("Unpacked bundled language packs into " + packsRoot + " (" + written + " new, " + updated + " updated).");
-            if (kept > 0)
-                log.LogInfo(kept + " bundled pack" + (kept == 1 ? " is" : "s are") + " already installed without a " +
-                            MarkerName + " marker, so they were left as they are. Delete such a folder to have the DLL's copy written.");
+            if (continued > 0)
+                log.LogDebug(continued + " bundled pack" + (continued == 1 ? " is" : "s are") + " already present without a " +
+                             MarkerName + " marker and were left as they are.");
         }
 
         private static Dictionary<string, string> ReadBundle(ManualLogSource log)
@@ -160,6 +168,20 @@ namespace ScamWYF.Translate
                 return null;
             }
             return (Stream)open.Invoke(assembly, new object[] { ResourceName });
+        }
+
+        /// <summary>The version a pack on disk claims, or "0.0.0" when it cannot say.</summary>
+        private static string ReadPackVersion(string manifestPath)
+        {
+            try
+            {
+                if (!File.Exists(manifestPath)) return "0.0.0";
+                return (string)JObject.Parse(File.ReadAllText(manifestPath))["version"] ?? "0.0.0";
+            }
+            catch (Exception)
+            {
+                return "0.0.0";
+            }
         }
 
         private static void Write(string directory, Dictionary<string, string> contents)
