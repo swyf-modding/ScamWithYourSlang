@@ -11,7 +11,8 @@
 param(
     [string]$GameDir,
     [string]$CscDll,
-    [switch]$NoCopy
+    [switch]$NoCopy,
+    [switch]$NoBundle
 )
 
 $ErrorActionPreference = 'Stop'
@@ -57,6 +58,30 @@ if ($sources.Count -eq 0) { throw "No sources in $PSScriptRoot\src" }
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $outDll = Join-Path $outDir 'ScamWYF.Translate.dll'
 
+# The packs travel inside the DLL, so that installing the mod is one file: the launcher can only
+# put DLLs in plugins, and a download that is a DLL plus a folder tree is a download people get
+# half-right. EmbeddedPacks writes them back out under BepInEx\config on first run, where they are
+# ordinary editable files again. One gzipped JSON object: path -> file text.
+$bundle = Join-Path $outDir 'packs.bundle'
+$packFiles = [ordered]@{}
+if (-not $NoBundle) {
+    foreach ($file in Get-ChildItem (Join-Path $PSScriptRoot 'packs') -Recurse -File) {
+        $relative = $file.FullName.Substring($PSScriptRoot.Length + 1).Replace('\', '/')
+        $packFiles[$relative] = [IO.File]::ReadAllText($file.FullName, [Text.Encoding]::UTF8)
+    }
+    if ($packFiles.Count -eq 0) { throw "No packs in $PSScriptRoot\packs" }
+
+    $json   = $packFiles | ConvertTo-Json -Depth 2 -Compress
+    $raw    = [Text.Encoding]::UTF8.GetBytes($json)
+    $memory = New-Object IO.MemoryStream
+    $gzip   = New-Object IO.Compression.GZipStream($memory, [IO.Compression.CompressionMode]::Compress)
+    $gzip.Write($raw, 0, $raw.Length)
+    $gzip.Dispose()
+    [IO.File]::WriteAllBytes($bundle, $memory.ToArray())
+    $memory.Dispose()
+    Write-Host ("Packed {0} pack files into {1} KB" -f $packFiles.Count, [math]::Round((Get-Item $bundle).Length / 1KB))
+}
+
 $cscArgs = @(
     '-target:library'
     "-out:$outDll"
@@ -68,6 +93,7 @@ $cscArgs = @(
     '-nologo'
     '-debug:portable'
 )
+if (-not $NoBundle) { $cscArgs += "-resource:$bundle,ScamWYF.Translate.packs.json.gz" }
 $cscArgs += ($refs | ForEach-Object { "-r:$_" })
 $cscArgs += $sources
 

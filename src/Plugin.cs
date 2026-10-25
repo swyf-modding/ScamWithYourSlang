@@ -26,7 +26,7 @@ namespace ScamWYF.Translate
     public sealed class TranslatePlugin : BaseUnityPlugin
     {
         public const string PluginId = "net.swyf.translate";
-        public const string PluginVersion = "0.2.0";
+        public const string PluginVersion = "0.3.0";
 
         /// <summary>Where packs live. Under BepInEx\config so a game update never touches them.</summary>
         public static string PacksRoot
@@ -64,6 +64,10 @@ namespace ScamWYF.Translate
                 Logger.LogError("Could not create " + PacksRoot + ": " + ex.Message);
                 return;
             }
+
+            // Before anything is read: a download is one DLL, and the packs it carries are
+            // written out here so that they are ordinary editable files from this point on.
+            EmbeddedPacks.Install(PacksRoot, Logger);
 
             List<string> problems;
             List<LanguagePack> packs = LanguagePack.LoadAll(PacksRoot, out problems);

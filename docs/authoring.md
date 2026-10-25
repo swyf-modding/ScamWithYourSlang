@@ -33,6 +33,15 @@ two-letter code — `nl` for Dutch, `th` for Thai, `vi` for Vietnamese.
 > something. If you have Python and a copy of this repo, `tools/make-template.py` does the same
 > job without starting the game.
 
+### The packs that come with the mod
+
+A fresh install unpacks every pack in this repository into
+`BepInEx\config\SWYFTranslate\packs\`, so there is something to read before writing anything.
+Those folders carry an `.embedded.json` marker recording the version the DLL wrote. The DLL only
+replaces a folder whose marker is older than the copy it carries, and never touches a folder
+without a marker at all. Delete the marker once you start translating and your pack is left alone
+by later releases; delete the folder to have the bundled copy written again.
+
 ### If the game already translates the language
 
 `packs/de`, `packs/ja` and the nineteen others are the game's own translations, converted from

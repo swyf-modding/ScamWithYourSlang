@@ -23,11 +23,28 @@ for whoever maintains the mod.
 ## Installing
 
 1. Put `ScamWYF.Translate.dll` in `BepInEx\plugins`.
-2. Put a pack folder in `BepInEx\config\SWYFTranslate\packs\`.
-3. Start the game. The language appears in Settings, in the same dropdown as the built-in ones.
+2. Start the game. The language appears in Settings, in the same dropdown as the built-in ones.
 
-With no packs installed the mod does nothing except offer the **F8** export, which writes a blank
-pack with every string in it. That is how a pack starts.
+That is the whole install: the packs in this repository are **inside the DLL**, and it writes them
+out to `BepInEx\config\SWYFTranslate\packs\` the first time it runs. From then on they are
+ordinary files that anyone can edit, which is the point of the mod - see
+[docs/authoring.md](docs/authoring.md).
+
+What it does with a pack folder that already exists is decided per pack, and never guessed:
+
+| The folder | What happens |
+|---|---|
+| does not exist | unpacked from the DLL |
+| exists, and holds the `.embedded.json` marker the DLL writes | unpacked again only if the bundled pack's `version` is newer |
+| exists, without the marker | left alone, because it is yours |
+
+So a pack installed by hand, or translated by hand, is never replaced by a bundled copy of the
+same language. To pin a folder that the DLL did write, delete its `.embedded.json`; to take the
+bundled copy back, delete the folder.
+
+Building without the bundle is possible (`-NoBundle`) and gives the old behaviour: the DLL then
+does nothing but read whatever packs are on disk, plus the **F8** export, which writes a blank pack
+with every string in it. That is how a pack starts.
 
 ## Building
 
@@ -40,6 +57,16 @@ No .NET SDK needed; the game's own assemblies are the reference set.
 It compiles with `-nostdlib` against the game's `mscorlib`, so the compiler sees exactly the API
 surface Unity shipped. Anything managed stripping removed fails to compile here rather than at
 runtime in someone else's game. (`SortedDictionary` is gone, for instance.)
+
+`build.ps1` also gzips every file under `packs\` into one JSON bundle and embeds it in the DLL as
+`ScamWYF.Translate.packs.json.gz`, which is what makes a release a single file. Two things about
+that are not obvious:
+
+- The DLL is 2.5 MB rather than 36 KB. That is the packs' 7 MB of JSON compressed.
+- The bundle is read by reflection. The game's `mscorlib` has
+  `Assembly.GetManifestResourceStream` stripped, and this compiles against that mscorlib, so the
+  call has to be bound at runtime; the game itself runs on BepInEx's unstripped corlib, where the
+  method is present. (`EmbeddedPacks.OpenResource` says the same thing next to the code.)
 
 The game's DLLs are not in this repo and must not be. CI cannot build the plugin for that reason;
 releases are built by hand, which is what every other mod in the org does.
