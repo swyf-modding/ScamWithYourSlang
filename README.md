@@ -50,8 +50,9 @@ releases are built by hand, which is what every other mod in the org does.
 |---|---|
 | `tools/make-template.py` | Writes or refreshes a pack's string files from the installed game. Keeps existing translations. |
 | `tools/check-pack.py` | Checks a pack for mistakes that otherwise only appear in game. Exits non-zero, so it works as a CI gate. |
+| `tools/import-bundled.py` | Converts a language the game already ships into a pack, so a shipped language can be corrected rather than retranslated. |
 
-Both need `pip install UnityPy`. Neither needs the game running.
+All three need `pip install UnityPy`. None needs the game running.
 
 ## How it works
 
@@ -119,6 +120,41 @@ report their language resetting once after installing a pack, this is where to l
 
 | | | |
 |---|---|---|
-| `packs/nl` | Dutch | 134 of 3,399 strings. A seed, not a translation — it needs a native speaker. |
+| `packs/UwU` | UwUSpeak | 3,561 of 3,561 strings. Invented language, written to exercise the mechanism end to end. |
+| `packs/nl` | Dutch | 3,558 of 3,561. Complete: machine-translated against a fixed glossary, then checked and hand-corrected. The three left are two subtitle blobs and one source string that is itself truncated. |
+
+### The languages the game ships
+
+The other 21 packs are the game's own translations, converted by
+`tools/import-bundled.py` so that a language the game ships can be corrected instead of
+retranslated. A pack whose code the game already has does not add a dropdown entry — the game
+already has one, and the mod applies the pack as an override instead:
+
+```
+[Info:SWYF Translate] German ships with the game, so the pack in ...\packs\de will override its text rather than add a second entry.
+```
+
+That is the point of them: the shipped text is now a file in this repository, and fixing a line
+is an edit to a pack rather than a wait for a game update.
+
+**Nine of them carry all three tables** — `de es fr ko pl pt ru tr zh` — at 3,538–3,539 of 3,561
+strings, each 22 or 23 menu strings short of what the game now has.
+
+**Twelve ship only the menu** — `ar cs da el et fa hi hu id it ja sv`. Their Commands and
+Controls tables are empty in the game itself, so those 334 strings are in English for those
+languages today and these packs leave them out rather than guess at them; see
+[What a pack does not cover](#what-a-pack-does-not-cover) and the note on empty values in
+[docs/authoring.md](docs/authoring.md). Filling them is a translation job, not an extraction one.
+
+Two things these packs deliberately do not carry, and the game explains both:
+
+- **No `sentinel`.** The game has a pronunciation table for every language it ships, and the mod
+  leaves an existing one alone. Only a language the game does not have needs a section.
+- **No `font` and no `culture`.** Both are the game's own choice for any code it knows, which is
+  all of these.
+
+Three entries are also left out because the game's own translations use Unity smart strings
+where the English has a plain argument — `{(count == 1 ? string.Empty : "s")}` — and a pack is
+handed to `string.Format` as text rather than evaluated. Those keep the game's own text.
 
 Requested and not yet started: Thai, Vietnamese.

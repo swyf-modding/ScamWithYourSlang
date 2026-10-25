@@ -1,0 +1,14 @@
+{
+  "code": "fa",
+  "nativeName": "فارسی",
+  "englishName": "Persian",
+  "author": "",
+  "version": "0.1.0",
+  "rtl": true,
+  "_source": "Extracted from the game's own fa string tables by tools/import-bundled.py. Edit this pack to correct the shipped language, or copy it to a new code to start a new one.",
+  "_sentinel": "The game already has a pronunciation table for fa, so this pack needs none. Only a language the game does not ship needs a sentinel section.",
+  "speech": {
+    "hasPocket": false,
+    "pocketFolder": ""
+  }
+}

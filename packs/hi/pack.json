@@ -1,0 +1,14 @@
+{
+  "code": "hi",
+  "nativeName": "हिन्दी",
+  "englishName": "Hindi",
+  "author": "",
+  "version": "0.1.0",
+  "rtl": false,
+  "_source": "Extracted from the game's own hi string tables by tools/import-bundled.py. Edit this pack to correct the shipped language, or copy it to a new code to start a new one.",
+  "_sentinel": "The game already has a pronunciation table for hi, so this pack needs none. Only a language the game does not ship needs a sentinel section.",
+  "speech": {
+    "hasPocket": true,
+    "pocketFolder": "hindi"
+  }
+}

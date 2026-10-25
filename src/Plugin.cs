@@ -26,7 +26,7 @@ namespace ScamWYF.Translate
     public sealed class TranslatePlugin : BaseUnityPlugin
     {
         public const string PluginId = "net.swyf.translate";
-        public const string PluginVersion = "0.1.0";
+        public const string PluginVersion = "0.2.0";
 
         /// <summary>Where packs live. Under BepInEx\config so a game update never touches them.</summary>
         public static string PacksRoot

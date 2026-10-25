@@ -1,0 +1,14 @@
+{
+  "code": "el",
+  "nativeName": "Ελληνικά",
+  "englishName": "Greek",
+  "author": "",
+  "version": "0.1.0",
+  "rtl": false,
+  "_source": "Extracted from the game's own el string tables by tools/import-bundled.py. Edit this pack to correct the shipped language, or copy it to a new code to start a new one.",
+  "_sentinel": "The game already has a pronunciation table for el, so this pack needs none. Only a language the game does not ship needs a sentinel section.",
+  "speech": {
+    "hasPocket": false,
+    "pocketFolder": ""
+  }
+}

@@ -2,9 +2,11 @@
   "code": "nl",
   "nativeName": "Nederlands",
   "englishName": "Dutch",
-  "author": "",
-  "version": "0.1.0",
+  "author": "KrakenDev",
+  "version": "1.0.0",
   "rtl": false,
+
+  "_translation": "Complete translation of all 3,561 strings. The bulk was machine-translated with Gemini (nl-NL) under a fixed glossary and then checked for placeholders, markup and length; corrections from native speakers are welcome and belong in packs/nl directly.",
 
   "_speech": "Dutch has no Pocket TTS model in StreamingAssets and is not one of the ten languages Qwen3 handles, so the caller speaks through MOSS. Set hasPocket only if a pocket-tts-onnx-v2/dutch folder is actually installed.",
   "speech": {

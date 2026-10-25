@@ -6,7 +6,7 @@ files. If you can edit a text file and you speak the language, you can make one.
 ```
 packs/nl/
   pack.json        which language this is
-  menu.json        3,065 strings: menus, the desktop, every screen
+  menu.json        3,227 strings: menus, the desktop, every screen
   commands.json    39 strings: what you shout at people
   controls.json    295 strings: key bindings and prompts
 ```
@@ -32,6 +32,22 @@ two-letter code — `nl` for Dutch, `th` for Thai, `vi` for Vietnamese.
 > You can change the key in the mod's config file, or set it to `None` if F8 clashes with
 > something. If you have Python and a copy of this repo, `tools/make-template.py` does the same
 > job without starting the game.
+
+### If the game already translates the language
+
+`packs/de`, `packs/ja` and the nineteen others are the game's own translations, converted from
+its string tables by `tools/import-bundled.py`. They are here so that a language the game already
+has can be **corrected** rather than retranslated: edit the pack and the game shows your text
+where its own would have shown, with no patch and nothing written into the game folder.
+
+Two things follow from that:
+
+- The game already has a dropdown entry for these codes, so the pack does not add one. At startup
+  the log says so — `German ships with the game, so the pack in ...\packs\de will override its
+  text rather than add a second entry.`
+- After a game update, `tools/import-bundled.py --force` re-extracts a pack from the game and
+  **replaces the file, edits and all**. To keep what you have and pick up only what is new, run
+  `tools/make-template.py` instead — it merges, and lists the strings the game dropped.
 
 ## 2. Fill in `pack.json`
 
@@ -129,7 +145,7 @@ python tools/check-pack.py packs/nl --game "C:/Program Files (x86)/Steam/steamap
 ```
 
 ```
-nl         Dutch - 134 of 3399 strings (4%)
+nl         Dutch - 3558 of 3561 strings (100%)
 
 OK
 ```
@@ -148,8 +164,8 @@ python tools/make-template.py --game "C:/.../Scam With Your Friends" --pack pack
 
 ```
 commands.json    39 strings    39 translated     0 new
-controls.json   295 strings   295 translated     2 new
-menu.json      3065 strings  3041 translated    31 new
+controls.json   295 strings   295 translated     0 new
+menu.json      3227 strings  3045 translated   182 new
 ```
 
 Everything you have already translated is kept. New strings arrive with empty values, so a diff
@@ -164,7 +180,7 @@ Three things need more than JSON, and knowing which is which saves a lot of time
 
 **Some text is written into the game's code rather than its string tables** — scattered labels,
 a few status lines. They are not in the template because they are not in the tables, and no pack
-can reach them yet. A rough count puts them in the low hundreds against 3,399 that a pack does
+can reach them yet. A rough count puts them in the low hundreds against 3,561 that a pack does
 cover.
 
 **The caller's voice.** Adding a language does not add a voice for it. The game picks a
