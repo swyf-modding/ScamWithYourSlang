@@ -26,7 +26,7 @@ namespace ScamWYF.Translate
     public sealed class TranslatePlugin : BaseUnityPlugin
     {
         public const string PluginId = "net.swyf.translate";
-        public const string PluginVersion = "0.3.1";
+        public const string PluginVersion = "0.4.0";
 
         /// <summary>Where packs live. Under BepInEx\config so a game update never touches them.</summary>
         public static string PacksRoot
@@ -94,6 +94,7 @@ namespace ScamWYF.Translate
             }
 
             StartCoroutine(GameBridge.RegisterLocales());
+
 
             Logger.LogInfo("Ready: " + packs.Count + " language pack" + (packs.Count == 1 ? "" : "s") + ".");
         }

@@ -42,6 +42,8 @@ namespace ScamWYF.Translate
         private static readonly Dictionary<string, LanguagePack> Packs =
             new Dictionary<string, LanguagePack>(StringComparer.Ordinal);
 
+        internal static long FontCalls, FontTicks, CultureCalls, CultureTicks, FillCalls, FillTicks;
+
         private static FieldInfo _menuCache, _commandsCache, _controlsCache;
         private static FieldInfo _optionsField, _profilesField;
 
@@ -62,10 +64,23 @@ namespace ScamWYF.Translate
             _harmony.PatchAll(typeof(CatalogPatch));
             _harmony.PatchAll(typeof(CacheFillPatch));
             _harmony.PatchAll(typeof(FontPatch));
-            _harmony.PatchAll(typeof(CulturePatch));
+
+            // Only when something needs it. This is a detour on a .NET method the whole game formats
+            // text through, and it exists for codes .NET does not know - an invented language, not
+            // Dutch. With every installed pack being a real language, installing it would be pure
+            // overhead on a hot path for a case that cannot happen.
+            if (NeedsCulturePatch()) _harmony.PatchAll(typeof(CulturePatch));
 
             EnsureCatalogue();
             InstallSentinelProfiles();
+        }
+
+        internal static string CostLine()
+        {
+            double hz = System.Diagnostics.Stopwatch.Frequency;
+            return string.Format("fill {0} ({1:F1}ms) culture {2} ({3:F1}ms) font {4} ({5:F1}ms)",
+                FillCalls, FillTicks / hz * 1000.0, CultureCalls, CultureTicks / hz * 1000.0,
+                FontCalls, FontTicks / hz * 1000.0);
         }
 
         internal static void Uninstall()
@@ -173,7 +188,7 @@ namespace ScamWYF.Translate
                     continue;
                 }
                 list.Add(new CallLanguageOption(pack.Code, pack.NativeName, pack.EnglishName, pack.HasPocket, pack.PocketFolder));
-                _log.LogInfo("Added " + pack.EnglishName + " (" + pack.Code + "), " + pack.StringCount + " strings.");
+                _log.LogInfo("Added " + pack.EnglishName + " (" + pack.Code + ").");
             }
             return list.AsReadOnly();
         }
@@ -240,7 +255,9 @@ namespace ScamWYF.Translate
         {
             private static void Postfix()
             {
-                FillCaches();
+                long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
+                try { FillCaches(); }
+                finally { FillCalls++; FillTicks += System.Diagnostics.Stopwatch.GetTimestamp() - t0; }
             }
         }
 
@@ -262,6 +279,11 @@ namespace ScamWYF.Translate
                 Fill(_menuCache, pack.Menu, "Menu");
                 Fill(_commandsCache, pack.Commands, "Commands");
                 Fill(_controlsCache, pack.Controls, "Controls");
+
+                if (pack.TablesError != null)
+                {
+                    _log.LogWarning(pack.Code + ": " + pack.TablesError + " Nothing was translated for it.");
+                }
             }
             catch (Exception ex)
             {
@@ -319,6 +341,13 @@ namespace ScamWYF.Translate
         {
             private static bool Prefix(string name, ref CultureInfo __result)
             {
+                long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
+                try { return PrefixCore(name, ref __result); }
+                finally { CultureCalls++; CultureTicks += System.Diagnostics.Stopwatch.GetTimestamp() - t0; }
+            }
+
+            private static bool PrefixCore(string name, ref CultureInfo __result)
+            {
                 LanguagePack pack;
                 if (name == null || !Packs.TryGetValue(name, out pack)) return true;
 
@@ -328,6 +357,20 @@ namespace ScamWYF.Translate
                 __result = culture;
                 return false;
             }
+        }
+
+        /// <summary>Whether any installed pack's language is one .NET has no culture for.</summary>
+        private static bool NeedsCulturePatch()
+        {
+            foreach (LanguagePack pack in Packs.Values)
+            {
+                if (!string.IsNullOrEmpty(pack.Culture) && Create(pack.Culture) != null) continue;
+                if (Create(pack.Code) != null) continue;
+
+                _log.LogInfo(pack.Code + " is not a .NET culture, so the culture lookup is patched for it.");
+                return true;
+            }
+            return false;
         }
 
         private static readonly Dictionary<string, CultureInfo> _cultures =

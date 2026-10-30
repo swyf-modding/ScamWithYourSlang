@@ -69,15 +69,49 @@ namespace ScamWYF.Translate
         /// </summary>
         public SentinelTable Sentinel { get; private set; }
 
-        public IDictionary<string, string> Menu { get; private set; }
+        private IDictionary<string, string> _menu, _commands, _controls;
+        private bool _tablesRead;
+        private string _tablesError;
 
-        public IDictionary<string, string> Commands { get; private set; }
+        /// <summary>
+        /// The pack's three string tables, read the first time one is asked for.
+        /// </summary>
+        /// <remarks>
+        /// Lazily, because only the selected language is ever read. A player with twenty-three
+        /// installed packs is playing in one of them, and parsing the other twenty-two costs about
+        /// 400ms of startup and tens of megabytes for text nothing will ask for. Every access goes
+        /// through here rather than through a field, so the cost lands on the language in use.
+        /// </remarks>
+        public IDictionary<string, string> Menu { get { ReadTables(); return _menu; } }
 
-        public IDictionary<string, string> Controls { get; private set; }
+        public IDictionary<string, string> Commands { get { ReadTables(); return _commands; } }
 
-        public int StringCount
+        public IDictionary<string, string> Controls { get { ReadTables(); return _controls; } }
+
+        /// <summary>Why the tables could not be read, or null. Only meaningful once they were asked for.</summary>
+        public string TablesError { get { ReadTables(); return _tablesError; } }
+
+        private void ReadTables()
         {
-            get { return Menu.Count + Commands.Count + Controls.Count; }
+            if (_tablesRead) return;
+            _tablesRead = true;
+
+            try
+            {
+                _menu = Table(Directory, "menu.json");
+                _commands = Table(Directory, "commands.json");
+                _controls = Table(Directory, "controls.json");
+            }
+            catch (Exception ex)
+            {
+                // Named rather than thrown: this runs from a game callback that a missing file must
+                // not take down. A pack that cannot be read shows the game's own text, which is what
+                // an unfinished pack does anyway.
+                _tablesError = ex.Message;
+                _menu = new Dictionary<string, string>(StringComparer.Ordinal);
+                _commands = new Dictionary<string, string>(StringComparer.Ordinal);
+                _controls = new Dictionary<string, string>(StringComparer.Ordinal);
+            }
         }
 
         private LanguagePack() { }
@@ -143,10 +177,6 @@ namespace ScamWYF.Translate
                 throw new PackException(pack.Code + ": speech.hasPocket is true but no pocketFolder is named.");
 
             pack.Sentinel = SentinelTable.Parse(pack.Code, manifest["sentinel"] as JObject);
-
-            pack.Menu = Table(directory, "menu.json");
-            pack.Commands = Table(directory, "commands.json");
-            pack.Controls = Table(directory, "controls.json");
 
             // No translations is allowed. A pack with only a manifest still adds the language to
             // the dropdown, which gives it speech recognition, a caller voice and a pronunciation
